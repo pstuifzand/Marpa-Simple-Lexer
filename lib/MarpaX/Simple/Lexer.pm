@@ -368,6 +368,25 @@ sub grow_buffer {
 }
 
 sub recognize {
+    my ($self, $fh) = @_;
+    my $rec = $self->_recognize($fh);
+    $rec->end_input;
+    return $rec;
+}
+
+sub partial_recognize {
+    my ($self, $fh) = @_;
+    return $self->_recognize($fh);
+}
+
+sub at_end {
+    my ($self) = @_;
+    my $rec = $self->{'recognizer'};
+    $rec->end_input;
+    return $rec;
+}
+
+sub _recognize {
     my $self = shift;
     my $fh = shift;
 
@@ -435,7 +454,6 @@ sub recognize {
             while ( !(my $status = eval { $rec->earleme_complete }) ) {
                 unless ( defined $status ) {
                     substr $$buffer, 0, $skip, '';
-                    $rec->end_input;
                     return $rec;
                 }
                 $skip++;
@@ -446,7 +464,6 @@ sub recognize {
         $buffer_can_grow = $self->grow_buffer( $fh )
             if $buffer_can_grow && $self->{'min_buffer'} > length $$buffer;
     }
-    $rec->end_input;
     return $rec;
 }
 
