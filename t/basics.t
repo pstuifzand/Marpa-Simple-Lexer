@@ -1,6 +1,6 @@
 #!/usr/bin/env perl
 
-use Test::More tests => 10;
+use Test::More tests => 14;
 use MarpaX::Simple::Lexer::Test;
 my $test = 'MarpaX::Simple::Lexer::Test';
 
@@ -45,4 +45,32 @@ for my $case (
     );
     is $rec->value, undef;
     is ${$lexer->buffer}, 'Y';
+}
+
+# Test the skip_ws parameter without whitespace
+{
+    my ($lexer, $rec) = $test->recognize(
+        rules => [
+            { lhs => 'text', rhs => ['word', 'word'] }
+        ],
+        tokens  => { word => qr/Y/ },
+        input   => "YY",
+        skip_ws => 1,
+    );
+    is_deeply($rec->value, \[ 'Y', 'Y' ] );
+    is ${$lexer->buffer}, '';
+}
+
+# Test the skip_ws parameter with whitespace
+{
+    my ($lexer, $rec) = $test->recognize(
+        rules => [
+            { lhs => 'text', rhs => ['word', 'word'] }
+        ],
+        tokens  => { word => qr/Y/ },
+        input   => "   Y   \n  Y",
+        skip_ws => 1,
+    );
+    is_deeply($rec->value, \[ 'Y', 'Y' ] );
+    is ${$lexer->buffer}, '';
 }

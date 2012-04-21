@@ -405,6 +405,10 @@ sub _recognize {
         say STDERR "Buffer start: ". $self->dump_buffer .'...'
             if $self->{'debug'};
 
+        if ($self->{'skip_ws'} && $$buffer =~ s/^\s+//) {
+            redo;
+        }
+
         my $first_char = substr $$buffer, 0, 1;
         foreach my $token ( @$expected ) {
             REDO:
